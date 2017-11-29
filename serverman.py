@@ -11,6 +11,32 @@ def on_message(client, userdata, message):
     topic = message.topic
     quality_of_service = message.qos
     retain_message = message.retain
+
+    ##########################################################
+    ######       Examples of an incoming messages:      ######
+    ###### declareAction_clientID_action_param1_param2  ######
+    ######          getActions_clientID_door1           ######
+    ##########################################################
+
+    #Split incoming payload into function elements
+    function_elements = request_message.split("_")
+    request_type =  function_elements[0]
+    actor_client_id = function_elements[1]
+    #for a declare request_type
+    request_action = function_elements[2]
+    #for a get request_type
+    requested_client_id = function_elements[2]
+
+    if len(function_elements) >= 3:
+        request_parameters = function_elements[3:]
+
+    if "declareAction" in request_type:
+        declareAction(function_db, actor_client_id, request_action, request_parameters)
+    elif "getActions" in request_type:
+        getActions(function_db, actor_client_id, requested_client_id)
+
+
+    #Display incoming message
     print("message received ", request_message)
     print("message topic=", topic)
     print("message qos=", quality_of_service)
@@ -19,7 +45,7 @@ def on_message(client, userdata, message):
 def declareAction(function_db, client_id, action, parameters):
     function_db.append([client_id, action, parameters])
 
-def getActions(client_id, function_db, client_prefix):
+def getActions(function_db, client_id, client_prefix):
     reply_message = ""
     for function in function_db:
         for element in function:
@@ -27,7 +53,7 @@ def getActions(client_id, function_db, client_prefix):
                 reply_message += element + ","
         serverman_client.publish(client_id, reply_message, qos=2, retain=True)
 
-def updateActions(client_id, function_db, client_function_length):
+def updateActions(function_db, client_id, client_function_length):
     reply_message =''
     db_length = len(function_db)
     if client_function_length != db_length:
@@ -54,5 +80,3 @@ serverman_client.subscribe("serverman", qos=2)
 
 time.sleep(4) # wait
 serverman_client.loop_stop() #stop the loop
-
-
