@@ -10,7 +10,7 @@ while not ready:
     response = client.post_text(
         botName='HelloJaffar',
         botAlias='JaffarTest',
-        userId='guest',
+        userId='guest_test',
         sessionAttributes={
             'string': 'string'
         },
