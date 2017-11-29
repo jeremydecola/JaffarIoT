@@ -73,8 +73,8 @@ while (ready != True):
     # to embed credentials in code.
     # access_key = os.environ.get('AWS_ACCESS_KEY_ID')
     # secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    access_key = 'AKIAJ5NCC5SF4OSN6OAQ'
-    secret_key = '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'
+    access_key = '' 
+    secret_key = ''
     if access_key is None or secret_key is None:
         print('No access key is available.')
         sys.exit()
