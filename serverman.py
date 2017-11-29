@@ -1,8 +1,9 @@
 import paho.mqtt.client as mqtt
 import time
 
-#Create a dictionairy to store messages
-
+#Create an array that will act as a database of functions
+#Functions are in the form [client_id, action, parameters]
+function_db = []
 
 #This is used to callback
 def on_message(client, userdata, message):
@@ -15,21 +16,25 @@ def on_message(client, userdata, message):
     print("message qos=", quality_of_service)
     print("message retain flag=", retain_message)
 
-def declareAction(request_dictionary, client_id, action, parameters):
-    request_dictionary[client_id] = {}
-    for i in range(len(parameters)):
-        request_dictionary[client_id][action] = parameters[i]
+def declareAction(function_db, client_id, action, parameters):
+    function_db.append([client_id, action, parameters])
 
-def getActionAll(client_id, request_dictionary):
-    for key, value in request_dictionary.items():
-        reply_message = str(key) + "," + str(value)
+def getActions(client_id, function_db, client_prefix):
+    reply_message = ""
+    for function in function_db:
+        for element in function:
+            if client_prefix in function_db[function][0]:
+                reply_message += element + ","
         serverman_client.publish(client_id, reply_message, qos=2, retain=True)
 
-def getActionRange(client_id, request_dictionary, a, b):
-    for
-
-
-
+def getMissingActions(client_id, function_db, client_function_length):
+    reply_message =''
+    db_length = len(function_db)
+    if client_function_length != db_length:
+        for function in range(client_function_length, db_length):
+            for element in function:
+                reply_message += element + ","
+        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
 
 #Broker Address
 broker_address = "ec2-34-207-65-122.compute-1.amazonaws.com"
