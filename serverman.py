@@ -1,12 +1,35 @@
 import paho.mqtt.client as mqtt
 import time
 
+#Create a dictionairy to store messages
+
+
 #This is used to callback
 def on_message(client, userdata, message):
-    print("message received ", str(message.payload.decode("utf-8")))
-    print("message topic=", message.topic)
-    print("message qos=", message.qos)
-    print("message retain flag=", message.retain)
+    request_message = str(message.payload.decode("utf-8"))
+    topic = message.topic
+    quality_of_service = message.qos
+    retain_message = message.retain
+    print("message received ", request_message)
+    print("message topic=", topic)
+    print("message qos=", quality_of_service)
+    print("message retain flag=", retain_message)
+
+def declareAction(request_dictionary, client_id, action, parameters):
+    request_dictionary[client_id] = {}
+    for i in range(len(parameters)):
+        request_dictionary[client_id][action] = parameters[i]
+
+def getActionAll(client_id, request_dictionary):
+    for key, value in request_dictionary.items():
+        reply_message = str(key) + "," + str(value)
+        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
+
+def getActionRange(client_id, request_dictionary, a, b):
+    for
+
+
+
 
 #Broker Address
 broker_address = "ec2-34-207-65-122.compute-1.amazonaws.com"
@@ -21,10 +44,8 @@ serverman_client.connect(broker_address, 1883, 60)
 serverman_client.loop_start() # start loop to stay connected
 
 #Subscribe to 'test' topic with QOS of 2
-serverman_client.subscribe("server/test", qos=2)
-
-#Publish the payload "ON" to 'test' topic with a QOS of 2 and retain value
-serverman_client.publish("server/test","ON", qos=2, retain=True)
+serverman_client.subscribe("serverman", qos=2)
+#serverman_client.subscribe("lobby", qos=2)
 
 time.sleep(4) # wait
 serverman_client.loop_stop() #stop the loop
