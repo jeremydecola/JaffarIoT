@@ -10,8 +10,8 @@ def declareAction(function_db, actor_id, action, parameters):
 
 
 def getActions(function_db,requester_id, actor_prefix):
-    print("Replying to ID:" + requester_id)
-    print("Requesting functions from actors related to IDs with prefix:" + actor_prefix)
+    #print("Replying to ID:" + requester_id)
+    #print("Requesting functions from actors related to IDs with prefix:" + actor_prefix)
     for function in range(len(function_db)):
         reply_message = ""
         prefix_match = False
@@ -19,18 +19,18 @@ def getActions(function_db,requester_id, actor_prefix):
             if actor_prefix in function_db[function][0]:
                 reply_message += str(function_db[function][element]) + ","
                 prefix_match = True
-        #serverman_client.publish(client_id, reply_message, qos=2, retain=True)
         if prefix_match == True:
-            print(str(function) + ", " + reply_message)
+            #print(str(function) + ", " + reply_message)
+            serverman_client.publish(requester_id, reply_message, qos=2, retain=True)
 
-def updateActions(function_db, client_id, client_function_length):
+def updateActions(function_db, requester_id, client_function_length):
     db_length = len(function_db)
     if client_function_length != db_length:
         for function in range(client_function_length, db_length):
             reply_message = ""
             for element in function_db[function]:
                 reply_message += str(function_db[function][element]) + ","
-        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
+            serverman_client.publish(requester_id, reply_message, qos=2, retain=True)
 
 #This is used to callback
 def on_message(client, userdata, message):
