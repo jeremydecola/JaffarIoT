@@ -27,7 +27,7 @@ def getActions(client_id, function_db, client_prefix):
                 reply_message += element + ","
         serverman_client.publish(client_id, reply_message, qos=2, retain=True)
 
-def getMissingActions(client_id, function_db, client_function_length):
+def updateActions(client_id, function_db, client_function_length):
     reply_message =''
     db_length = len(function_db)
     if client_function_length != db_length:
