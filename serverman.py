@@ -5,6 +5,33 @@ import time
 #Functions are in the form [client_id, action, parameters]
 function_db = []
 
+def declareAction(function_db, actor_id, action, parameters):
+    function_db.append([actor_id, action, parameters])
+
+
+def getActions(function_db,requester_id, actor_prefix):
+    print("Replying to ID:" + requester_id)
+    print("Requesting functions from actors related to IDs with prefix:" + actor_prefix)
+    for function in range(len(function_db)):
+        reply_message = ""
+        prefix_match = False
+        for element in range(len(function_db[function])):
+            if actor_prefix in function_db[function][0]:
+                reply_message += str(function_db[function][element]) + ","
+                prefix_match = True
+        #serverman_client.publish(client_id, reply_message, qos=2, retain=True)
+        if prefix_match == True:
+            print(str(function) + ", " + reply_message)
+
+def updateActions(function_db, client_id, client_function_length):
+    db_length = len(function_db)
+    if client_function_length != db_length:
+        for function in range(client_function_length, db_length):
+            reply_message = ""
+            for element in function_db[function]:
+                reply_message += str(function_db[function][element]) + ","
+        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
+
 #This is used to callback
 def on_message(client, userdata, message):
     request_message = str(message.payload.decode("utf-8"))
@@ -18,13 +45,13 @@ def on_message(client, userdata, message):
     ######          getActions_clientID_door1           ######
     ##########################################################
 
-    #Split incoming payload into function elements
+    # Split incoming payload into function elements
     function_elements = request_message.split("_")
-    request_type =  function_elements[0]
+    request_type = function_elements[0]
     actor_client_id = function_elements[1]
-    #for a declare request_type
+    # for a declare request_type
     request_action = function_elements[2]
-    #for a get request_type
+    # for a get request_type
     requested_client_id = function_elements[2]
 
     if len(function_elements) >= 3:
@@ -35,32 +62,11 @@ def on_message(client, userdata, message):
     elif "getActions" in request_type:
         getActions(function_db, actor_client_id, requested_client_id)
 
-
     #Display incoming message
     print("message received ", request_message)
     print("message topic=", topic)
     print("message qos=", quality_of_service)
     print("message retain flag=", retain_message)
-
-def declareAction(function_db, client_id, action, parameters):
-    function_db.append([client_id, action, parameters])
-
-def getActions(function_db, client_id, client_prefix):
-    reply_message = ""
-    for function in function_db:
-        for element in function:
-            if client_prefix in function_db[function][0]:
-                reply_message += element + ","
-        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
-
-def updateActions(function_db, client_id, client_function_length):
-    reply_message =''
-    db_length = len(function_db)
-    if client_function_length != db_length:
-        for function in range(client_function_length, db_length):
-            for element in function:
-                reply_message += element + ","
-        serverman_client.publish(client_id, reply_message, qos=2, retain=True)
 
 #Broker Address
 broker_address = "ec2-34-207-65-122.compute-1.amazonaws.com"
