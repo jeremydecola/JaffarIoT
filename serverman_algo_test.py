@@ -17,6 +17,7 @@ request_12 = "declareAction_giraffe_makeNoise_howl_chew_bark"
 request_13 = "getID_spoon"
 request_14 = "declareAction_spoon_levitate_force_gravity"
 request_15 = "getID_giraffe"
+request_16 = "getID_giraffe"
 
 
 
@@ -24,16 +25,16 @@ def getID(function_db, requester_id):
     print(requester_id + " is requesting an ID")
     id_in_use = True
     i = 2
+    client_name = requester_id
     #Create an array that lists all IDs currently in DB
-    for function in range(len(function_db)):
-        id_list.append(function_db[function][0])
     while(id_in_use):
         if requester_id not in id_list:
             id_in_use = False
         else:
-            requester_id = requester_id + str(i)
+            requester_id = client_name + str(i)
             i+=1
     assigned_id = requester_id
+    id_list.append(assigned_id)
     print(assigned_id + " is available.")
     #serverman_client.publish("lobby", assigned_id, qos=2, retain=True)
     print("ID published to the lobby")
@@ -107,3 +108,4 @@ getRequest(request_12)
 getRequest(request_13)
 getRequest(request_14)
 getRequest(request_15)
+getRequest(request_16)
