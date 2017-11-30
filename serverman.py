@@ -4,6 +4,7 @@ import time
 #Create an array that will act as a database of functions
 #Functions are in the form [client_id, action, parameters]
 function_db = []
+id_list = []
 
 def getID(function_db, requester_id):
     #print(requester_id + " is requesting an ID")
