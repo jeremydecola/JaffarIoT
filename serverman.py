@@ -5,6 +5,21 @@ import time
 #Functions are in the form [client_id, action, parameters]
 function_db = []
 
+def getID(function_db, requester_id):
+    id_in_use = True
+    i = 2
+    #Create an array that lists all IDs currently in DB
+    for function in range(len(function_db)):
+        id_list.append(function_db[function][0])
+    while(id_in_use):
+        if requester_id not in id_list:
+            id_in_use = False
+        else:
+            requester_id = requester_id + str(i)
+            i+=1
+    assigned_id = requester_id
+    serverman_client.publish("lobby", assigned_id, qos=2, retain=True)
+
 def declareAction(function_db, actor_id, action, parameters):
     function_db.append([actor_id, action, parameters])
 
@@ -39,28 +54,33 @@ def on_message(client, userdata, message):
     quality_of_service = message.qos
     retain_message = message.retain
 
-    ##########################################################
-    ######       Examples of an incoming messages:      ######
-    ###### declareAction_clientID_action_param1_param2  ######
-    ######          getActions_clientID_door1           ######
-    ##########################################################
+    #############################################################
+    ###### Examples of an incoming messages for serverman: ######
+    ######   declareAction_clientID_action_param1_param2   ######
+    ######             getActions_clientID_door1           ######
+    ######                 getID_clientName                ######
+    #############################################################
 
     # Split incoming payload into function elements
     function_elements = request_message.split("_")
     request_type = function_elements[0]
     actor_client_id = function_elements[1]
-    # for a declare request_type
-    request_action = function_elements[2]
-    # for a get request_type
-    requested_client_id = function_elements[2]
 
     if len(function_elements) >= 3:
+        # for a declare request_type
+        request_action = function_elements[2]
+        # for a get request_type
+        requested_client_id = function_elements[2]
+
+    if len(function_elements) >= 4:
         request_parameters = function_elements[3:]
 
     if "declareAction" in request_type:
         declareAction(function_db, actor_client_id, request_action, request_parameters)
     elif "getActions" in request_type:
         getActions(function_db, actor_client_id, requested_client_id)
+    elif "getID" in request_type:
+        getID(function_db, actor_client_id)
 
     #Display incoming message
     print("message received ", request_message)
@@ -82,7 +102,6 @@ serverman_client.loop_start() # start loop to stay connected
 
 #Subscribe to 'test' topic with QOS of 2
 serverman_client.subscribe("serverman", qos=2)
-#serverman_client.subscribe("lobby", qos=2)
 
 time.sleep(4) # wait
 serverman_client.loop_stop() #stop the loop
