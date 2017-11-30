@@ -6,6 +6,7 @@ import time
 function_db = []
 
 def getID(function_db, requester_id):
+    #print(requester_id + " is requesting an ID")
     id_in_use = True
     i = 2
     #Create an array that lists all IDs currently in DB
@@ -18,7 +19,10 @@ def getID(function_db, requester_id):
             requester_id = requester_id + str(i)
             i+=1
     assigned_id = requester_id
+    #print(assigned_id + " is available.")
     serverman_client.publish("lobby", assigned_id, qos=2, retain=True)
+    #print("ID published to the lobby")
+
 
 def declareAction(function_db, actor_id, action, parameters):
     function_db.append([actor_id, action, parameters])
@@ -71,7 +75,8 @@ def on_message(client, userdata, message):
         request_action = function_elements[2]
         # for a get request_type
         requested_client_id = function_elements[2]
-
+    # request_params can be empty for an action decleration so let's initialize
+    request_parameters = []
     if len(function_elements) >= 4:
         request_parameters = function_elements[3:]
 
