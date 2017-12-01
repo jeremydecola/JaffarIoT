@@ -27,6 +27,7 @@ def getID(function_db, requester_id):
 
 def declareAction(function_db, actor_id, action, parameters):
     function_db.append([actor_id, action, parameters])
+    print(actor_id + " has declared the action " + action)
 
 
 def getActions(function_db,requester_id, actor_prefix):
@@ -59,10 +60,10 @@ def on_message(client, userdata, message):
     quality_of_service = message.qos
     retain_message = message.retain
     # Display incoming message
-    print("message received ", request_message)
-    print("message topic=", topic)
-    print("message qos=", quality_of_service)
-    print("message retain flag=", retain_message)
+    #print("message received ", request_message)
+    #print("message topic=", topic)
+    #print("message qos=", quality_of_service)
+    #print("message retain flag=", retain_message)
 
     if topic == "serverman":
         #############################################################
@@ -82,8 +83,9 @@ def on_message(client, userdata, message):
             request_action = function_elements[2]
             # for a get request_type
             requested_client_id = function_elements[2]
-        # request_params can be empty for an action decleration so let's initialize
+        # request_params can be empty for an action declaration so let's initialize
         request_parameters = []
+
         if len(function_elements) >= 4:
             request_parameters = function_elements[3:]
 
@@ -110,8 +112,7 @@ serverman_client.loop_start()
 #serverman_client.loop_forever()
 
 #Subscribe to 'test' topic with QOS of 2
-serverman_client.subscribe("serverman", qos=2)
-serverman_client.subscribe("potato", qos=2)
+serverman_client.subscribe("serverman", qos=0)
 
 time.sleep(5000) # wait
 serverman_client.loop_stop() #stop the loop
