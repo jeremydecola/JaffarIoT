@@ -3,6 +3,7 @@ import time
 
 current_state = False
 client_name = "smartlight"
+updated_id = "" # A copy of the id assigned by lobby for disconnect callback
 
 def on_message(client, userdata, message):
     request_message = str(message.payload.decode("utf-8"))
@@ -17,7 +18,9 @@ def on_message(client, userdata, message):
 
     if topic == "lobby":
         assigned_id = request_message
+        updated_id = assigned_id
         smartlight_client.subscribe(assigned_id, qos=2)
+        smartlight_client.unsubscribe("lobby")
 
         print("Declaring Actions")
         actions = []
@@ -26,27 +29,30 @@ def on_message(client, userdata, message):
         for action in range(len(actions)):
             message = str(("declareAction_" + assigned_id + "_" + actions[action]))
             smartlight_client.publish("serverman", message , qos=2, retain=True)
-        smartlight_client.unsubscribe("lobby")
-
-
-
-
+            print("declared an action")
+        return updated_id
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("Connection Successful")
+        print("Connection Successful.")
     elif rc == 1:
-        print("Connection Refused - Incorrect Protocol Version")
+        print("Connection Refused - Incorrect Protocol Version.")
     elif rc == 2:
-        print("Connection Refused - Invalid Client Identifier")
+        print("Connection Refused - Invalid Client Identifier.")
     elif rc == 3:
-        print("Connection Refused - Server Unavailable")
+        print("Connection Refused - Server Unavailable.")
     elif rc == 4:
-        print("Connection Refused - Bad Username or Password")
+        print("Connection Refused - Bad Username or Password.")
     elif rc == 5:
-        print("Connection Refused - Not Authorized")
+        print("Connection Refused - Not Authorized.")
 
     print("Requesting Unique ID")
     smartlight_client.publish("serverman", ("getID_" + client_name), qos=2, retain=True)
+
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print("Unexpected Disconnection.")
+    smartlight_client.publish("serverman", ("removeActions_" + updated_id), qos=2, retain=True)
+    print("Successfully Disconnected")
 
 
 def toggleLight(current_state):
@@ -80,3 +86,4 @@ print("Subscribed to Lobby")
 
 time.sleep(5000) # wait
 smartlight_client.loop_stop() #stop the loop
+# smartlight_client.disconnect() #run on_disconnect
