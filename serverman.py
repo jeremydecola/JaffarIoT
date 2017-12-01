@@ -26,8 +26,9 @@ def getID(function_db, requester_id):
 
 
 def declareAction(function_db, actor_id, action, parameters):
-    function_db.append([actor_id, action, parameters])
-    print(actor_id + " has declared the action " + action)
+    if actor_id in id_list:
+        function_db.append([actor_id, action, parameters])
+        print(actor_id + " has declared the action " + action)
 
 
 def getActions(function_db,requester_id, actor_prefix):
@@ -44,6 +45,13 @@ def getActions(function_db,requester_id, actor_prefix):
             print(str(function) + ", " + reply_message)
             serverman_client.publish(requester_id, reply_message, qos=2, retain=True)
 
+def removeActions(function_db, actor_id):
+    for function in range(len(function_db)):
+        if function_db[function][0] == actor_id:
+            function_db.remove(function)
+
+
+"""
 def updateActions(function_db, requester_id, client_function_length):
     db_length = len(function_db)
     if client_function_length != db_length:
@@ -52,6 +60,7 @@ def updateActions(function_db, requester_id, client_function_length):
             for element in function_db[function]:
                 reply_message += str(function_db[function][element]) + ","
             serverman_client.publish(requester_id, reply_message, qos=2, retain=True)
+"""
 
 #This is used to callback
 def on_message(client, userdata, message):
@@ -71,6 +80,7 @@ def on_message(client, userdata, message):
         ######   declareAction_clientID_action_param1_param2   ######
         ######             getActions_clientID_door1           ######
         ######                 getID_clientName                ######
+        ######              removeActions_clientID             ######
         #############################################################
 
         # Split incoming payload into function elements
@@ -95,6 +105,8 @@ def on_message(client, userdata, message):
             getActions(function_db, actor_client_id, requested_client_id)
         elif "getID" in request_type:
             getID(function_db, actor_client_id)
+        elif "removeActions" in request_type:
+            removeActions(function_db, actor_client_id)
 
 #Broker Address
 broker_address = "ec2-34-207-65-122.compute-1.amazonaws.com"
@@ -112,7 +124,7 @@ serverman_client.loop_start()
 #serverman_client.loop_forever()
 
 #Subscribe to 'test' topic with QOS of 2
-serverman_client.subscribe("serverman", qos=0)
+serverman_client.subscribe("serverman", qos=2)
 
 time.sleep(5000) # wait
 serverman_client.loop_stop() #stop the loop
